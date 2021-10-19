@@ -1,31 +1,20 @@
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from rest_framework import response
 from rest_framework.response import Response
 import uuid, logging
 
 from application.models.contact import Contact
 from application.serializers.contact import ContactSerializer, ContactListingSerializer
-from application.utils.templates import GetNotValidErrorTemplate
+from application.utils.template import get_not_valid_error_template, get_listing_response_template
+from application.utils.common import get_pagination_parameters, populate_filter
 
 #region define private functions and variables
 __logger = logging.getLogger(__name__)
 
-def __populate_contact_filter(request):
-    FILTERED_CONTACT_PROPERTIES = ['name', 'address', 'email', 'phone_number']
-
-    filter = {}
-    for property_name in FILTERED_CONTACT_PROPERTIES:
-        property_value = request.GET.get(property_name, None)
-        if property_value is not None:
-            filterKey = '{0}__contains'.format(property_name)
-            filter[filterKey] = property_value
-    __logger.debug('list_contacts with filter {0}'.format(filter))
-    return filter
-
-def __get_pagination_parameters(request):
-    page = int(request.GET.get('page', 1))
-    pageSize = int(request.GET.get('pageSize', 10))
-    return {'skip' : (page-1)*pageSize , 'take' : pageSize}
+def __filter_contact(filter):
+    return Contact.objects.filter(**filter)
 #endregion
+
 def get_contact_by_id(id) -> Contact:
     try:
         contact = Contact.objects.get(id=uuid.UUID(id))
@@ -35,12 +24,18 @@ def get_contact_by_id(id) -> Contact:
 
 def list_contact(request):
     __logger.info('list_contact starting.')
-    contact_filter = __populate_contact_filter(request)
-    pagination_param = __get_pagination_parameters(request)
-    contacts = Contact.objects.all().filter(**contact_filter)[pagination_param['skip']:pagination_param['take']]
+
+    filter = populate_filter(request, ['name', 'address', 'email', 'phone_number'])
+    pagination_param = get_pagination_parameters(request)
+
+    total_count = Contact.objects.filter(**filter).count()
+    contacts = Contact.objects.filter(**filter)[pagination_param['skip']:pagination_param['take']]
+
     serialized_contacts = ContactListingSerializer(contacts, many=True)
+    response_data = get_listing_response_template(serialized_contacts.data, total_count)
+    
     __logger.info('list_contact finished successfully.')
-    return Response(data=serialized_contacts.data, status=200)
+    return Response(data=response_data, status=200)
 
 def create_contact(request): 
     __logger.info('create_contact starting.')
@@ -48,7 +43,7 @@ def create_contact(request):
     if serializer.is_valid():
         serializer.save()
     else:
-        error_messages = GetNotValidErrorTemplate()
+        error_messages = get_not_valid_error_template()
         for error in serializer.errors:
             error_detail = serializer.errors[error][0]
             error_messages['errors'][error] = str(error_detail)
@@ -91,7 +86,7 @@ def update_contact(request, id):
             contact.full_clean()
             contact.save()
         except ValidationError as ex:
-            error_messages = GetNotValidErrorTemplate()
+            error_messages = get_not_valid_error_template()
             for error_key in ex.error_dict:
                 error_messages['errors'][error_key] = ','.join(ex.error_dict[error_key][0])
             __logger.error('update_contact finished with an error: {0}'.format(error_messages['errors']))

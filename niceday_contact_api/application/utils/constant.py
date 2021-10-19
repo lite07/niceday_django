@@ -1,0 +1,1 @@
+CONTACT_FILTERERED_FILEDS = ['name','email','address','phone_number']

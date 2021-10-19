@@ -11,3 +11,6 @@ class Contact(models.Model):
     email = models.EmailField(max_length=320, null=False)
     address = models.CharField(max_length=512, blank=True, null=True)
     phone_number = models.CharField(max_length=16, validators = [PHONE_REGEX], blank=True, null=True)
+
+    def __str__(self):
+        return self.name

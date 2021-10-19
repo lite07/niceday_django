@@ -8,3 +8,6 @@ class ContactList(models.Model):
     name = models.CharField(max_length=64, null=False)
     description = models.CharField(max_length=256, blank=True, null=True)
     contacts = models.ManyToManyField(Contact)
+
+    def __str__(self):
+        return self.name
