@@ -93,3 +93,5 @@ def update_contact(request, id):
             return Response(data = error_messages, status=400)
         __logger.info('update_contact finished successfully.')       
         return Response(data = request.data, status=200)
+    else:
+        return Response('Unable to find contact with id {0}'.format(id), status=404)
