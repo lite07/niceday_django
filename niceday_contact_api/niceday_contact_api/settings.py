@@ -32,16 +32,29 @@ ALLOWED_HOSTS = []
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'filters': {
+        'correlation_id': {
+            '()': 'django_guid.log_filters.CorrelationId'
+        }
+    },
+    'loggers': {
+        'django_guid': {
+            'handlers': ['console'],
+            'level': 'CRITICAL',
+            'propagate': False,
+        }
+    },
     'formatters': {
         'simple': {
-            'format': '{asctime} - {levelname} - {message}',
+            'format': '{asctime} {levelname} - [{correlation_id}] {message}',
             'style': '{',
         },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'simple',
+            'filters': ['correlation_id']
         },
     },
     'root': {
@@ -57,6 +70,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_guid',
     'rest_framework',
     'application'
 ]
@@ -69,6 +83,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_guid.middleware.guid_middleware'
 ]
 
 ROOT_URLCONF = 'niceday_contact_api.urls'
@@ -90,7 +105,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'niceday_contact_api.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

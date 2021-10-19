@@ -9,5 +9,5 @@ class Contact(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=64, null=False)
     email = models.EmailField(max_length=320, null=False)
-    address = models.CharField(max_length=512, blank=True)
-    phone_number = models.CharField(max_length=16, validators = [PHONE_REGEX], blank=True)
+    address = models.CharField(max_length=512, blank=True, null=True)
+    phone_number = models.CharField(max_length=16, validators = [PHONE_REGEX], blank=True, null=True)
