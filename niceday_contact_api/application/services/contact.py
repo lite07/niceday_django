@@ -22,9 +22,9 @@ def __populate_contact_filter(request):
     return filter
 
 def __get_pagination_parameters(request):
-    page = request.GET.get('page', 1)
-    pageSize = request.GET.get('pageSize', 10)
-    return {'skip' : (page-1)*pageSize , 'take' : 10}
+    page = int(request.GET.get('page', 1))
+    pageSize = int(request.GET.get('pageSize', 10))
+    return {'skip' : (page-1)*pageSize , 'take' : pageSize}
 #endregion
 def get_contact_by_id(id) -> Contact:
     try:
