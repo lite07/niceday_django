@@ -11,3 +11,6 @@ def get_pagination_parameters(request):
     page = int(request.GET.get('page', 1))
     pageSize = int(request.GET.get('pageSize', 10))
     return {'skip' : (page-1)*pageSize , 'take' : pageSize}
+
+def remove_null_from_dictionary(dict):
+    return {k : v for k, v in dict.items() if v is not None}

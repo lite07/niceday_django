@@ -6,7 +6,7 @@ import uuid, logging
 from application.models.contact import Contact
 from application.serializers.contact import ContactSerializer, ContactListingSerializer
 from application.utils.template import get_not_valid_error_template, get_listing_response_template
-from application.utils.common import get_pagination_parameters, populate_filter
+from application.utils.common import get_pagination_parameters, populate_filter, remove_null_from_dictionary
 
 #region define private functions and variables
 __logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ def get_contact(id):
     if contact is not None:
             serialized_contact = ContactSerializer(contact, many=False)
             __logger.info('get_contact finished successfully.')
-            return Response(data=serialized_contact.data, status=200)
+            return Response(data=remove_null_from_dictionary(serialized_contact.data), status=200)
     return Response(data = 'Unable to find contact with id {0}'.format(id), status=404)
 
 def delete_contact(id):

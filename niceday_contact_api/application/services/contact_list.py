@@ -8,7 +8,7 @@ from application.serializers.contact_list import ContactListSerializer, ContactL
 from application.serializers.contact import ContactSerializer
 from application.services.contact import get_contact_by_id
 from application.utils.template import get_not_valid_error_template, get_listing_response_template
-from application.utils.common import get_pagination_parameters, populate_filter
+from application.utils.common import get_pagination_parameters, populate_filter, remove_null_from_dictionary
 
 
 
@@ -56,7 +56,7 @@ def get_contactlist(id):
     if contact_list is not None:
             serialized_contactlist = ContactListSerializer(contact_list, many=False)
             __logger.info('get_contactlist finished successfully.')
-            return Response(data=serialized_contactlist.data, status=200)
+            return Response(data=remove_null_from_dictionary(serialized_contactlist.data), status=200)
     return Response(data = 'Unable to find contact list with id {0}'.format(id), status=404)
 
 def delete_contactlist(id):
