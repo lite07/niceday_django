@@ -152,6 +152,7 @@ class ContactTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     #endregion
 
+    #region update_contact test methods
     def test_updatecontact_validid_returnok(self):
         id = 'ae355d96-88a5-40cd-a298-7caaa75a794d'
         response = self.client.patch('/api/contacts/{0}'.format(id))
@@ -161,3 +162,49 @@ class ContactTestCase(APITestCase):
         id = 'ae355d96-88a5-40cd-a298-7caaa75d314d'
         response = self.client.patch('/api/contacts/{0}'.format(id))
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_updatecontact_validdata_returnok(self):
+        id = 'ae355d96-88a5-40cd-a298-7caaa75a794d'
+        request_data = {
+            'name': 'some name',
+            'email' : 'email@email.com',
+            'address' : '123123',
+            'phone_number' : '+123123123'
+        }
+        response = self.client.patch('/api/contacts/{0}'.format(id), request_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_updatecontact_blankname_returnbadrequest(self):
+        id = 'ae355d96-88a5-40cd-a298-7caaa75a794d'
+        request_data = {
+            'name' : '',
+            'email' : 'email@email.com',
+            'address' : '123123',
+            'phone_number' : '+123123123'
+        }
+        response = self.client.patch('/api/contacts/{0}'.format(id), request_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_updatecontact_invalidemail_returnbadrequest(self):
+        id = 'ae355d96-88a5-40cd-a298-7caaa75a794d'
+        request_data = {
+            'name' : 'some name',
+            'email' : 'email123email.com',
+            'address' : '123123',
+            'phone_number' : '+123123123'
+        }
+        response = self.client.patch('/api/contacts/{0}'.format(id), request_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    
+    def test_updatecontact_invalidphone_returnbadrequest(self):
+        id = 'ae355d96-88a5-40cd-a298-7caaa75a794d'
+        request_data = {
+            'name' : 'some name',
+            'email' : 'email@email.com',
+            'address' : '123123',
+            'phone_number' : '+asdasd213'
+        }
+        response = self.client.patch('/api/contacts/{0}'.format(id), request_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+    #endregion
+
