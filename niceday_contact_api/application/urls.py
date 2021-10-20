@@ -10,5 +10,6 @@ urlpatterns = [
     path('api/contacts/<str:id>', views.single_contact_view, name="Single Contact View"),
     path('api/contact-lists', views.contact_list_view, name="Contact List View"),
     path('api/contact-lists/<str:id>', views.single_contact_list_view, name="Single Contact List View"),
-    path('api/contact-lists/<str:list_id>/contacts', views.assigned_contact_view, name="Assigned Contact View")
+    path('api/contact-lists/<str:list_id>/contacts', views.assigned_contact_view, name="Assigned Contact View"),
+    path('api/contact-lists/<str:list_id>/contacts/<str:contact_id>', views.remove_contact_view, name="Remove Contact View")
 ]
