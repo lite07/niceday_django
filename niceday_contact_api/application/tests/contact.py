@@ -1,13 +1,9 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from unittest import mock
-
 import ast
 
 from application.models.contact import Contact
-from application.serializers.contact import ContactListingSerializer, ContactSerializer
-
-# Create your tests here.
 
 class ContactTestCase(APITestCase):
     def setUp(self):
@@ -18,8 +14,7 @@ class ContactTestCase(APITestCase):
 
     #region list_contact test methods
     def test_listcontact_nofilter_returnall(self):
-        request_data = { }
-        response = self.client.get('/api/contacts', request_data)
+        response = self.client.get('/api/contacts')
         response_data = ast.literal_eval(response.content.decode('UTF-8'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response_data['totalCount'], 4)

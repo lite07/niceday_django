@@ -81,7 +81,7 @@ def contact_list_view(request):
         This endpoint will cover both listing and filter contact list with GET and create contact list with POST
 
         [GET] For listing purpose, will only return the id and name of the contact lists. Detail can be fetched using the another endpoint.
-        Support 'name' and 'description' as filter parameter. Add the filter in the query parameter.
+        Support 'name' as filter parameter. Add the filter in the query parameter.
 
         [POST] Example request body for creating contact list:
         {
