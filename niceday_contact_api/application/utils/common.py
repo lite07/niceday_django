@@ -1,3 +1,6 @@
+from rest_framework.response import Response
+import uuid
+
 def populate_filter(request, filter_fields):
     filter = {}
     for field in filter_fields:
@@ -14,3 +17,13 @@ def get_pagination_parameters(request):
 
 def remove_null_from_dictionary(dict):
     return {k : v for k, v in dict.items() if v is not None}
+
+def check_invalid_uuid(id):
+    try:
+        uuid.UUID(id)
+        return False
+    except ValueError:
+        return True
+
+def return_invalid_uuid_response(id_var_name):
+    return Response(data = '{0} is not in a valid uuid format'.format(id_var_name), status=400)

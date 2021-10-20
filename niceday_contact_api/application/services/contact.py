@@ -6,7 +6,7 @@ import uuid, logging
 from application.models.contact import Contact
 from application.serializers.contact import ContactSerializer, ContactListingSerializer
 from application.utils.template import get_not_valid_error_template, get_listing_response_template
-from application.utils.common import get_pagination_parameters, populate_filter, remove_null_from_dictionary
+from application.utils.common import get_pagination_parameters, populate_filter, remove_null_from_dictionary, check_invalid_uuid, return_invalid_uuid_response
 
 #region define private functions and variables
 __logger = logging.getLogger(__name__)
@@ -54,6 +54,9 @@ def create_contact(request):
 
 def get_contact(id):
     __logger.info('get_contact starting.')
+    if check_invalid_uuid(id):
+        return return_invalid_uuid_response('id')
+
     contact = get_contact_by_id(id)
     if contact is not None:
             serialized_contact = ContactSerializer(contact, many=False)
@@ -63,6 +66,9 @@ def get_contact(id):
 
 def delete_contact(id):
     __logger.info('delete_contact starting.')
+    if check_invalid_uuid(id):
+        return return_invalid_uuid_response('id')
+
     contact = get_contact_by_id(id)
     if contact is not None:
         contact.delete()
@@ -72,6 +78,9 @@ def delete_contact(id):
 
 def update_contact(request, id):
     __logger.info('update_contact starting.')
+    if check_invalid_uuid(id):
+        return return_invalid_uuid_response('id')
+    
     contact = get_contact_by_id(id)
     if contact is not None:
         if 'name' in request.data: 

@@ -8,9 +8,7 @@ from application.serializers.contact_list import ContactListSerializer, ContactL
 from application.serializers.contact import ContactSerializer
 from application.services.contact import get_contact_by_id
 from application.utils.template import get_not_valid_error_template, get_listing_response_template
-from application.utils.common import get_pagination_parameters, populate_filter, remove_null_from_dictionary
-
-
+from application.utils.common import get_pagination_parameters, populate_filter, remove_null_from_dictionary, check_invalid_uuid, return_invalid_uuid_response
 
 #region define private functions and variables
 __logger = logging.getLogger(__name__)
@@ -52,6 +50,9 @@ def list_contactlist(request):
     return Response(data = response_data, status = 200)
 
 def get_contactlist(id):
+    if check_invalid_uuid(id):
+        return return_invalid_uuid_response('id')
+
     contact_list = get_contact_list_by_id(id)
     if contact_list is not None:
             serialized_contactlist = ContactListSerializer(contact_list, many=False)
@@ -60,6 +61,9 @@ def get_contactlist(id):
     return Response(data = 'Unable to find contact list with id {0}'.format(id), status=404)
 
 def delete_contactlist(id):
+    if check_invalid_uuid(id):
+        return return_invalid_uuid_response('id')
+
     contact_list = get_contact_list_by_id(id)
     if contact_list is not None:
         contact_list.delete()
@@ -67,6 +71,9 @@ def delete_contactlist(id):
     return Response(data = 'Unable to find contact list with id {0}'.format(id), status=404)
 
 def get_assigned_contact(request, id):
+    if check_invalid_uuid(id):
+        return return_invalid_uuid_response('id')
+
     contact_list = get_contact_list_by_id(id)
     if contact_list is not None:
         filter = populate_filter(request, Constant.CONTACT_FILTERERED_FILEDS)
@@ -81,22 +88,36 @@ def get_assigned_contact(request, id):
         return Response(data = response_data, status = 200)           
     return Response(status = 200)
 
-def assign_contact(list_id, contact_id):
+def assign_contact(request, list_id):
+    if check_invalid_uuid(list_id):
+        return return_invalid_uuid_response('list_id')
+    
     contact_list = get_contact_list_by_id(list_id)
     if contact_list is not None:
-        contact = get_contact_by_id(contact_id)
-        if contact is not None:
-            contact_list.contacts.add(contact)
-            contact_list.save()
+        if 'contact_id' in request.data:
+            contact_id = request.data['contact_id']
+            if check_invalid_uuid(contact_id):
+                return return_invalid_uuid_response('contact_id')
+            contact = get_contact_by_id(contact_id)
+            if contact is not None:
+                contact_list.contacts.add(contact)
+                contact_list.save()
+            else:
+                return Response('Unable to find contact with id {0}'.format(list_id), status=404)
         else:
-            return Response('Unable to find contact with id {0}'.format(list_id), status=404)
+            return Response('Unable to find \'contact_id\' in request body', status=400)
     else:
         return Response('Unable to find contact list with id {0}'.format(list_id), status=404)
     return Response(status = 200)
 
 def remove_contact(list_id, contact_id):
+    if check_invalid_uuid(list_id):
+        return return_invalid_uuid_response('list_id')
+    
     contact_list = get_contact_list_by_id(list_id)
     if contact_list is not None:
+        if check_invalid_uuid(contact_id):
+            return return_invalid_uuid_response('contact_id')
         try:
             contact = contact_list.contacts.get(id = uuid.UUID(contact_id))
             contact_list.contacts.remove(contact)
